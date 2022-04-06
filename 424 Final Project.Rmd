@@ -1,0 +1,148 @@
+---
+title: "424 Final Project"
+author: "Alec Wallbruch, Claire Westenberger, Olin Frederiks"
+date: "4/6/2022"
+output: pdf_document
+---
+```{r}
+rm(list = ls())
+```
+
+#Packages
+```{r}
+if(!require(tidyverse)){
+    install.packages("tidyverse")
+    library(tidyverse)
+}
+if(!require(ggplot2)){
+    install.packages("ggplot2")
+    library(ggplot2)
+}
+if(!require(gmodels)){
+    install.packages("gmodels")
+    library(gmodels)
+}
+if(!require(tibble)){
+    install.packages("tibble")
+    library(tibble)
+}
+if(!require(agricolae)){
+    install.packages("agricolae")
+    library(agricolae)
+}
+if(!require(dae)){
+    install.packages("dae")
+    library(dae)
+}
+```
+
+#Data
+```{r}
+#Create Data Frame
+cookiedata <- tribble(
+  ~x,~y,~z,
+  "0h","b1",61.4,
+  "0h","b2",65.3,
+  "0h","b3",64.6,
+  "0h","b4",67.1,
+  "0h","b5",64.7,
+  
+  "1h","b1",66.1,
+  "1h","b2",70.9,
+  "1h","b3",69.7,
+  "1h","b4",70.5,
+  "1h","b5",67.8,
+  
+  "6h","b1",61.4,
+  "6h","b2",62.6,
+  "6h","b3",63.7,
+  "6h","b4",58.6,
+  "6h","b5",63.0,
+  
+  "24h","b1",73.9,
+  "24h","b2",68.7,
+  "24h","b3",72.4,
+  "24h","b4",61.7,
+  "24h","b5",67.9,
+)
+
+#Factor X and Y variables
+cookiedata$x <- as.factor(cookiedata$x)
+cookiedata$y <- as.factor(cookiedata$y)
+
+#Rename variables
+cookiedata <- rename(cookiedata, "time" = x, "batch" = y, "diameter" = z)
+```
+
+#Analysis
+```{r}
+#ANOVA model with blocking
+cookie.mod <- lm(diameter ~ time + batch, data = cookiedata)
+cookie.aov <- aov(cookie.mod)
+summary(cookie.aov)
+
+#ANOVA modle without blocking
+cookie.mod2 <- lm(diameter ~ time, data = cookiedata)
+cookie.aov2 <- aov(cookie.mod2)
+summary(cookie.aov2)
+```
+
+#Plot
+```{r}
+#Plot colored by batch
+ggplot(cookiedata) +
+  geom_point(aes(x = time, y = diameter, col = batch)) +
+  scale_color_brewer(palette = "Set2")
+
+#ANOVA without blocking residual plots
+plot(cookie.aov2)
+```
+
+#LSD
+```{r}
+#Blocking LSD (NOT USED)
+#cookietime <- LSD.test(cookie.aov, "time", alpha = 0.05, p.adj = "none", console = TRUE)
+
+#Blocking TukeyHSD (NOT USED)
+#TukeyHSD(cookie.aov)
+
+#No Blocking LSD
+cookietime2 <- LSD.test(cookie.aov2, "time", alpha = 0.05, p.adj = "none", console = TRUE)
+
+#No Blocking TukeyHSD
+TukeyHSD(cookie.aov2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
